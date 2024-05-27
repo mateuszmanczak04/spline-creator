@@ -15,17 +15,23 @@ const Controls: FC<ControlsProps> = ({ points, setPoints }) => {
 
 	return (
 		<div>
-			<p>Współrzędne punktów</p>
-			{points.slice(0, points.length - 1).map((p, index) => (
-				<p key={`${p.x}_${p.y}`}>
-					<span>{index}.</span>
-					<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>X:</span>
-					<span>{p.x}</span>
-					<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>Y:</span>
-					<span>{p.y}</span>
-				</p>
-			))}
-			<button onClick={updatePoints}>Update points</button>
+			<h2>Współrzędne punktów</h2>
+			<br />
+			<button
+				onClick={updatePoints}
+				style={{
+					background: '#0895F5',
+					fontSize: '1.25rem',
+					color: 'white',
+					paddingLeft: '1rem',
+					paddingRight: '1rem',
+					height: '40px',
+					borderRadius: '0.25rem',
+					fontWeight: 'bolder',
+					cursor: 'pointer',
+				}}>
+				Update points
+			</button>
 		</div>
 	);
 };

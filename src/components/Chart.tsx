@@ -147,15 +147,18 @@ const Chart: FC<ChartProps> = ({ points }) => {
 	}, [repaint]);
 
 	return (
-		<canvas
-			ref={canvasRef}
-			width={400}
-			height={300}
-			style={{
-				background: '#eee',
-				border: '1px solid black',
-				padding: '1rem',
-			}}></canvas>
+		<>
+			<h2>Wykres funkcji:</h2>
+			<canvas
+				ref={canvasRef}
+				width={400}
+				height={300}
+				style={{
+					background: '#eee',
+					border: '1px solid black',
+					padding: '1rem',
+				}}></canvas>
+		</>
 	);
 };
 
