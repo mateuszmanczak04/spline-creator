@@ -1,31 +1,23 @@
-// an assumption of this app is that first derivative of every function
-// in limiting points is equal to 0
-// TODO - change this
+'use client';
 
 import Matrix, { solve } from 'ml-matrix';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef } from 'react';
 import { Point } from '../types';
 import calculatePolynomialOf3Degree from '../utils/calculatePolynomialOf3Degree';
 import drawPoint from '../utils/drawPoint';
 
-const Learning = () => {
-	const [points, setPoints] = useState<Point[]>([]);
+interface ChartProps {
+	points: Point[];
+}
+
+const Chart: FC<ChartProps> = ({ points }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
 		// create another fPoints array which essentially is the same
 		// points array with a random point added at the end
 		// we do it to not break the loop
-		const fPoints = [
-			{ x: 10, y: 50 },
-			{ x: 40, y: 20 },
-			{ x: 100, y: 125 },
-			{ x: 200, y: 20 },
-			{ x: 270, y: 220 },
-			{ x: 360, y: 100 },
-			{ x: 500, y: 140 },
-		];
-		setPoints(fPoints);
+		const fPoints = points;
 		fPoints.push({ x: 10_000, y: 100 });
 
 		// get canvas and context
@@ -148,37 +140,23 @@ const Learning = () => {
 		// render points as small circles on top of the line
 
 		fPoints.forEach(p => drawPoint(ctx, height, p.x, p.y));
-	}, []);
+	}, [points]);
 
 	useEffect(() => {
 		repaint();
 	}, [repaint]);
 
 	return (
-		<>
-			<canvas
-				ref={canvasRef}
-				width={400}
-				height={300}
-				style={{
-					background: '#eee',
-					border: '1px solid black',
-					padding: '1rem',
-				}}></canvas>
-			<div>
-				<p>Współrzędne punktów</p>
-				{points.slice(0, points.length - 1).map((p, index) => (
-					<p key={`${p.x}_${p.y}`}>
-						<span>{index}.</span>
-						<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>X:</span>
-						<span>{p.x}</span>
-						<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>Y:</span>
-						<span>{p.y}</span>
-					</p>
-				))}
-			</div>
-		</>
+		<canvas
+			ref={canvasRef}
+			width={400}
+			height={300}
+			style={{
+				background: '#eee',
+				border: '1px solid black',
+				padding: '1rem',
+			}}></canvas>
 	);
 };
 
-export default Learning;
+export default Chart;
