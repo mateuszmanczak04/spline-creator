@@ -1,61 +1,155 @@
 import Matrix, { solve } from 'ml-matrix';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Point } from '../types';
+import calculatePolynomialOf3Degree from '../utils/calculatePolynomialOf3Degree';
 import drawPoint from '../utils/drawPoint';
 
 const Learning = () => {
-	const [points, setPoints] = useState<Point[]>([
-		{ x: 50, y: 50 },
-		{ x: 100, y: 150 },
-		{ x: 150, y: 25 },
-		{ x: 200, y: 125 },
-	]);
+	const [points, setPoints] = useState<Point[]>([]);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
+		// create another fPoints array which essentially is the same
+		// points array with a random point added at the end
+		// we do it to not break the loop
+		const fPoints = [
+			{ x: 10, y: 50 },
+			{ x: 40, y: 20 },
+			{ x: 100, y: 125 },
+			{ x: 200, y: 20 },
+			{ x: 270, y: 220 },
+			{ x: 300, y: 100 },
+			{ x: 350, y: 182 },
+		];
+		setPoints(fPoints);
+		fPoints.push({ x: 10_000, y: 100 });
+		console.log(fPoints);
+
+		// get canvas and context
 		const canvas = canvasRef.current!;
 		const ctx = canvas.getContext('2d')!;
 
-		ctx.clearRect(0, 0, 400, 300);
-
 		if (!ctx) {
-			console.log('ctx is undefined');
+			console.error('ctx is undefined');
 			return;
 		}
 
-		const A = new Matrix([
-			[points[0].x ** 3, points[0].x ** 2, points[0].x, 1],
-			[points[1].x ** 3, points[1].x ** 2, points[1].x, 1],
-			[points[2].x ** 3, points[2].x ** 2, points[2].x, 1],
-			[points[3].x ** 3, points[3].x ** 2, points[3].x, 1],
-		]);
-		const B = new Matrix([
-			[points[0].y],
-			[points[1].y],
-			[points[2].y],
-			[points[3].y],
-		]);
-
-		const result = solve(A, B).to2DArray();
-
-		const a = result[0][0];
-		const b = result[1][0];
-		const c = result[2][0];
-		const d = result[3][0];
-
+		ctx.clearRect(0, 0, 400, 300);
+		ctx.lineWidth = 3;
+		ctx.fillStyle = '#F53208'; // color of point dots
+		ctx.strokeStyle = '#21130d'; // color of line joining points
 		const height = canvas.height;
-		ctx.moveTo(points[0].x, points[0].y);
-		ctx.beginPath();
-		ctx.fillStyle = 'blue';
-		for (let x = 0; x <= 200; x += 5) {
-			const y = a * x ** 3 + b * x ** 2 + c * x + d;
-			console.log({ x, y });
-			ctx.lineTo(x, height - y);
-		}
-		ctx.stroke();
 
-		points.forEach(p => drawPoint(ctx, height, p.x, p.y));
-	}, [points]);
+		for (let i = 0; i < fPoints.length - 2; i++) {
+			const L = fPoints[i].x; // left point's x
+			const C = fPoints[i + 1].x; // center point's x
+			const R = fPoints[i + 2].x; // right point's x
+
+			// we use 8x8 matrixes for solving equations system to calculate
+			// coefficients for 2 3rd degree spliced functions
+			// first 4 elements of array are coefficients of the S0 function
+			// last 4 of the S1
+			const A = new Matrix([
+				// S0(l):
+				[L ** 3, L ** 2, L, 1, 0, 0, 0, 0],
+				// S0(c):
+				[C ** 3, C ** 2, C, 1, 0, 0, 0, 0],
+				// S1(c):
+				[0, 0, 0, 0, C ** 3, C ** 2, C, 1],
+				// S1(r):
+				[0, 0, 0, 0, R ** 3, R ** 2, R, 1],
+				// S0'(c) - S1'(c) = 0:
+				[3 * C ** 2, 2 * C, 1, 0, -3 * C ** 2, -2 * C, -1, 0],
+				// S0''(c) - S1''(c) = 0:
+				[6 * C, 2, 0, 0, -6 * C, -2, 0, 0],
+				// S0''(l) = 0:
+				[6 * L, 2, 0, 0, 0, 0, 0, 0],
+				// S1''(r) = 0:
+				[0, 0, 0, 0, 6 * R, 2, 0, 0],
+				// S0'(c) = 0:
+				[3 * C ** 2, 2 * C, 1, 0, 0, 0, 0, 0],
+				// S1'(c) = 0:
+				[0, 0, 0, 0, C ** 3, C ** 2, C, 1],
+				// S0'(l) = 0:
+				[3 * L ** 2, 2 * L, 1, 0, 0, 0, 0, 0],
+				// S1'(r) = 0:
+				[0, 0, 0, 0, R ** 3, R ** 2, R, 1],
+			]);
+
+			const B = new Matrix([
+				[fPoints[i].y], // S0(l)
+				[fPoints[i + 1].y], // S0(c)
+				[fPoints[i + 1].y], // S1(c)
+				[fPoints[i + 2].y], // S1(r)
+				[0], // S0'(c) - S1'(c)
+				[0], // S0''(c) - S1''(c)
+				[0], // S0''(l)
+				[0], // S1''(r)
+				[0], // S0'(c')
+				[0], // S1'(c')
+				[0], // S0'(l)
+				[0], // S1'(r)
+			]);
+
+			const result = solve(A, B).to2DArray();
+
+			// a0, b0, c0 and d0 - coefficients of S0(x)
+			// S0(x) = ax^3 + bx^2 + cx + d
+			const a0 = result[0][0];
+			const b0 = result[1][0];
+			const c0 = result[2][0];
+			const d0 = result[3][0];
+
+			const drawS0 = () => {
+				ctx.moveTo(fPoints[0].x, fPoints[0].y);
+				ctx.beginPath();
+				// draw S0
+				// x += 2 means that we draw a straight line every 2 pixels horizontally
+				for (let x = fPoints[i].x; x <= fPoints[i + 1].x; x += 2) {
+					const y = calculatePolynomialOf3Degree({
+						a: a0,
+						b: b0,
+						c: c0,
+						d: d0,
+						x,
+					});
+					ctx.lineTo(x, height - y);
+				}
+				ctx.stroke();
+			};
+			drawS0();
+
+			// const drawS1 = () => {
+			// 	// a1, b1, c1 and d1 - coefficients of S1(x)
+			// 	// S1(x) = ax^3 + bx^2 + cx + d
+			// 	const a1 = result[4][0];
+			// 	const b1 = result[5][0];
+			// 	const c1 = result[6][0];
+			// 	const d1 = result[7][0];
+
+			// 	ctx.moveTo(points[0].x, points[0].y);
+			// 	ctx.beginPath();
+			// 	ctx.strokeStyle = generateRandomHexColor();
+			// 	// draw S1
+			// 	for (let x = points[i + 1].x; x <= points[i + 2].x; x += 5) {
+			// 		const y = calculatePolynomialOf3Degree({
+			// 			a: a1,
+			// 			b: b1,
+			// 			c: c1,
+			// 			d: d1,
+			// 			x,
+			// 		});
+			// 		ctx.lineTo(x, height - y);
+			// 	}
+			// 	ctx.stroke();
+			// };
+			// drawS1();
+		}
+
+		// render points as small circles on top of the line
+
+		fPoints.forEach(p => drawPoint(ctx, height, p.x, p.y));
+	}, []);
 
 	useEffect(() => {
 		repaint();
@@ -74,66 +168,15 @@ const Learning = () => {
 				}}></canvas>
 			<div>
 				<p>Współrzędne punktów</p>
-				<div>
-					<span>P1:</span>
-					<input
-						type='number'
-						value={points[0].y}
-						onChange={e =>
-							setPoints(prev => [
-								{ x: prev[0].x, y: parseInt(e.target.value) },
-								prev[1],
-								prev[2],
-								prev[3],
-							])
-						}
-					/>
-				</div>
-				<div>
-					<span>P2:</span>
-					<input
-						type='number'
-						value={points[1].y}
-						onChange={e =>
-							setPoints(prev => [
-								prev[0],
-								{ x: prev[1].x, y: parseInt(e.target.value) },
-								prev[2],
-								prev[3],
-							])
-						}
-					/>
-				</div>
-				<div>
-					<span>P3:</span>
-					<input
-						type='number'
-						value={points[2].y}
-						onChange={e =>
-							setPoints(prev => [
-								prev[0],
-								prev[1],
-								{ x: prev[2].x, y: parseInt(e.target.value) },
-								prev[3],
-							])
-						}
-					/>
-				</div>
-				<div>
-					<span>P3:</span>
-					<input
-						type='number'
-						value={points[3].y}
-						onChange={e =>
-							setPoints(prev => [
-								prev[0],
-								prev[1],
-								prev[2],
-								{ x: prev[3].x, y: parseInt(e.target.value) },
-							])
-						}
-					/>
-				</div>
+				{points.map((p, index) => (
+					<p>
+						<span>{index}.</span>
+						<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>X:</span>
+						<span>{p.x}</span>
+						<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>Y:</span>
+						<span>{p.y}</span>
+					</p>
+				))}
 			</div>
 		</>
 	);
