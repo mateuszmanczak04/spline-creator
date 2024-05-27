@@ -1,3 +1,7 @@
+// an assumption of this app is that first derivative of every function
+// in limiting points is equal to 0
+// TODO - change this
+
 import Matrix, { solve } from 'ml-matrix';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Point } from '../types';
@@ -18,12 +22,11 @@ const Learning = () => {
 			{ x: 100, y: 125 },
 			{ x: 200, y: 20 },
 			{ x: 270, y: 220 },
-			{ x: 300, y: 100 },
-			{ x: 350, y: 182 },
+			{ x: 360, y: 100 },
+			{ x: 500, y: 140 },
 		];
 		setPoints(fPoints);
 		fPoints.push({ x: 10_000, y: 100 });
-		console.log(fPoints);
 
 		// get canvas and context
 		const canvas = canvasRef.current!;
@@ -62,10 +65,6 @@ const Learning = () => {
 				[3 * C ** 2, 2 * C, 1, 0, -3 * C ** 2, -2 * C, -1, 0],
 				// S0''(c) - S1''(c) = 0:
 				[6 * C, 2, 0, 0, -6 * C, -2, 0, 0],
-				// S0''(l) = 0:
-				[6 * L, 2, 0, 0, 0, 0, 0, 0],
-				// S1''(r) = 0:
-				[0, 0, 0, 0, 6 * R, 2, 0, 0],
 				// S0'(c) = 0:
 				[3 * C ** 2, 2 * C, 1, 0, 0, 0, 0, 0],
 				// S1'(c) = 0:
@@ -83,10 +82,8 @@ const Learning = () => {
 				[fPoints[i + 2].y], // S1(r)
 				[0], // S0'(c) - S1'(c)
 				[0], // S0''(c) - S1''(c)
-				[0], // S0''(l)
-				[0], // S1''(r)
-				[0], // S0'(c')
-				[0], // S1'(c')
+				[0], // S0'(c)
+				[0], // S1'(c)
 				[0], // S0'(l)
 				[0], // S1'(r)
 			]);
@@ -103,9 +100,10 @@ const Learning = () => {
 			const drawS0 = () => {
 				ctx.moveTo(fPoints[0].x, fPoints[0].y);
 				ctx.beginPath();
+				ctx.strokeStyle = 'black';
 				// draw S0
 				// x += 2 means that we draw a straight line every 2 pixels horizontally
-				for (let x = fPoints[i].x; x <= fPoints[i + 1].x; x += 2) {
+				for (let x = fPoints[i].x; x <= fPoints[i + 1].x; x += 1) {
 					const y = calculatePolynomialOf3Degree({
 						a: a0,
 						b: b0,
@@ -119,6 +117,7 @@ const Learning = () => {
 			};
 			drawS0();
 
+			// // function drawing the following functino fragment:
 			// const drawS1 = () => {
 			// 	// a1, b1, c1 and d1 - coefficients of S1(x)
 			// 	// S1(x) = ax^3 + bx^2 + cx + d
@@ -127,11 +126,11 @@ const Learning = () => {
 			// 	const c1 = result[6][0];
 			// 	const d1 = result[7][0];
 
-			// 	ctx.moveTo(points[0].x, points[0].y);
+			// 	ctx.moveTo(fPoints[0].x, fPoints[0].y);
 			// 	ctx.beginPath();
-			// 	ctx.strokeStyle = generateRandomHexColor();
+			// 	ctx.strokeStyle = 'blue';
 			// 	// draw S1
-			// 	for (let x = points[i + 1].x; x <= points[i + 2].x; x += 5) {
+			// 	for (let x = C; x <= R; x += 5) {
 			// 		const y = calculatePolynomialOf3Degree({
 			// 			a: a1,
 			// 			b: b1,
@@ -168,8 +167,8 @@ const Learning = () => {
 				}}></canvas>
 			<div>
 				<p>Współrzędne punktów</p>
-				{points.map((p, index) => (
-					<p>
+				{points.slice(0, points.length - 1).map((p, index) => (
+					<p key={`${p.x}_${p.y}`}>
 						<span>{index}.</span>
 						<span style={{ marginLeft: '8px', fontWeight: 'bolder' }}>X:</span>
 						<span>{p.x}</span>
