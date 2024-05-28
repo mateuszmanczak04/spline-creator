@@ -26,11 +26,10 @@ function App() {
 
 	// creates a new point with same coordinates as previous latest
 	const addPoint = () => {
-		const latestPoint = points[points.length - 1];
 		const newPoint = {
 			id: crypto.randomUUID(),
-			x: latestPoint.x,
-			y: latestPoint.y,
+			x: null,
+			y: null,
 		};
 		setPoints(prev => [...prev, newPoint]);
 	};
