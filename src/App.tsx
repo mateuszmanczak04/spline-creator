@@ -71,9 +71,11 @@ function App() {
 					lineColor={lineColor}
 					points={
 						// pass only points with both coordinates existing
-						points.filter(
-							point => point.x !== null && point.y !== null,
-						) as CompletePoint[]
+						(
+							points.filter(
+								point => point.x !== null && point.y !== null,
+							) as CompletePoint[]
+						).sort((p1, p2) => (p1.x > p2.x ? 1 : -1))
 					}
 				/>
 			</div>
