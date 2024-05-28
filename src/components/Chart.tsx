@@ -17,8 +17,8 @@ const Chart: FC<ChartProps> = ({ points }) => {
 		// create another fPoints array which essentially is the same
 		// points array with a random point added at the end
 		// we do it to not break the loop
-		const fPoints = points;
-		fPoints.push({ x: 10_000, y: 100 });
+		const fPoints = [...points];
+		fPoints.push({ id: crypto.randomUUID(), x: 10_000, y: 100 });
 
 		// get canvas and context
 		const canvas = canvasRef.current!;
@@ -29,7 +29,7 @@ const Chart: FC<ChartProps> = ({ points }) => {
 			return;
 		}
 
-		ctx.clearRect(0, 0, 400, 300);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.fillStyle = '#F53208'; // color of point dots
 		ctx.strokeStyle = '#21130d'; // color of line joining points
@@ -148,15 +148,14 @@ const Chart: FC<ChartProps> = ({ points }) => {
 
 	return (
 		<>
-			<h2>Wykres funkcji:</h2>
 			<canvas
 				ref={canvasRef}
-				width={400}
-				height={300}
+				width={window.innerWidth - 32}
+				height={500}
 				style={{
-					background: '#eee',
-					border: '1px solid black',
+					background: '#efefef',
 					padding: '1rem',
+					borderBottom: '2px solid #cdcdcd',
 				}}></canvas>
 		</>
 	);
