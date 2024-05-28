@@ -7,7 +7,15 @@ interface ControlsProps {
 	points: Point[];
 	addPoint: () => void;
 	removePoint: (id: string) => void;
-	updatePoint: ({ id, x, y }: { id: string; x?: number; y?: number }) => void;
+	updatePoint: ({
+		id,
+		x,
+		y,
+	}: {
+		id: string;
+		x?: number | null;
+		y?: number | null;
+	}) => void;
 }
 
 const Controls: FC<ControlsProps> = ({
@@ -33,10 +41,10 @@ const Controls: FC<ControlsProps> = ({
 						style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 						<input
 							type='number'
-							value={point.x}
+							value={point.x === null ? '' : point.x}
 							onChange={e => {
 								if (!e.target.value || e.target.value.length === 0) {
-									updatePoint({ id: point.id, x: 0 });
+									updatePoint({ id: point.id, x: null });
 									return;
 								}
 								updatePoint({ id: point.id, x: parseInt(e.target.value) });
@@ -51,10 +59,10 @@ const Controls: FC<ControlsProps> = ({
 						/>
 						<input
 							type='number'
-							value={point.y}
+							value={point.y === null ? '' : point.y}
 							onChange={e => {
 								if (!e.target.value || e.target.value.length === 0) {
-									updatePoint({ id: point.id, y: 0 });
+									updatePoint({ id: point.id, y: null });
 									return;
 								}
 								updatePoint({ id: point.id, y: parseInt(e.target.value) });

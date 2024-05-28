@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import Chart from './components/Chart';
 import Controls from './components/Controls';
-import { Point } from './types';
+import { CompletePoint, Point } from './types';
 
 function App() {
 	const [points, setPoints] = useState<Point[]>([
@@ -36,8 +36,8 @@ function App() {
 		y,
 	}: {
 		id: string;
-		x?: number;
-		y?: number;
+		x?: number | null;
+		y?: number | null;
 	}) => {
 		setPoints(prev =>
 			prev.map(point => {
@@ -55,7 +55,14 @@ function App() {
 
 	return (
 		<div>
-			<Chart points={points} />
+			<Chart
+				points={
+					// pass only points with both coordinates existing
+					points.filter(
+						point => point.x !== null && point.y !== null,
+					) as CompletePoint[]
+				}
+			/>
 			<Controls
 				points={points}
 				addPoint={addPoint}

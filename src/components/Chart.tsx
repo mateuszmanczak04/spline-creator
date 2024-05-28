@@ -2,12 +2,12 @@
 
 import { Matrix, solve } from 'ml-matrix';
 import { FC, useCallback, useEffect, useRef } from 'react';
-import { Point } from '../types';
+import { CompletePoint } from '../types';
 import drawPoint from '../utils/drawPoint';
 import drawSplineSegment from '../utils/drawSplineSegment';
 
 interface ChartProps {
-	points: Point[];
+	points: CompletePoint[];
 }
 
 const Chart: FC<ChartProps> = ({ points }) => {
