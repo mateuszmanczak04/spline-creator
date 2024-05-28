@@ -10,9 +10,11 @@ import drawSplineSegment from '../utils/drawSplineSegment';
 
 interface ChartProps {
 	points: CompletePoint[];
+	pointColor: string;
+	lineColor: string;
 }
 
-const Chart: FC<ChartProps> = ({ points }) => {
+const Chart: FC<ChartProps> = ({ points, pointColor, lineColor }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
@@ -33,8 +35,7 @@ const Chart: FC<ChartProps> = ({ points }) => {
 		drawChartBackground(ctx, canvas.width, canvas.height);
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
-		ctx.fillStyle = '#F53208';
-		ctx.strokeStyle = '#21130d';
+		ctx.strokeStyle = lineColor;
 		const height = canvas.height;
 
 		// we need this to maintain C^1 class of entire spline curve
@@ -84,15 +85,15 @@ const Chart: FC<ChartProps> = ({ points }) => {
 
 			// first curve is an exception where we have to draw the first part
 			if (i === 0) {
-				drawSplineSegment(ctx, height, L, C, a0, b0, c0, d0, 'black');
+				drawSplineSegment(ctx, height, L, C, a0, b0, c0, d0, lineColor);
 			}
 
 			// every next curve needs just the second part of it's visualisation
-			drawSplineSegment(ctx, height, C, R, a1, b1, c1, d1, 'black');
+			drawSplineSegment(ctx, height, C, R, a1, b1, c1, d1, lineColor);
 		}
 
-		points.forEach(p => drawPoint(ctx, height, p.x, p.y));
-	}, [points]);
+		points.forEach(p => drawPoint(ctx, height, p.x, p.y, pointColor));
+	}, [points, pointColor, lineColor]);
 
 	useEffect(() => {
 		repaint();

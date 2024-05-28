@@ -3,6 +3,7 @@ const drawPoint = (
 	canvasHeight: number,
 	x: number,
 	y: number,
+	color: string,
 ) => {
 	// xOffset is horizontal translation used if point's x is too small
 	// to display entire label on the screen
@@ -13,7 +14,7 @@ const drawPoint = (
 
 	ctx.beginPath();
 	ctx.moveTo(x, canvasHeight - y);
-	ctx.fillStyle = 'red';
+	ctx.fillStyle = color;
 	ctx.arc(x, canvasHeight - y, 6, 0, Math.PI * 2);
 	ctx.fill();
 	ctx.fillStyle = 'black';

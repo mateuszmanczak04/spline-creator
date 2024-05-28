@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import BackgroundCanvas from './components/BackgroundCanvas';
 import Chart from './components/Chart';
+import ColorPicker from './components/ColorPicker';
 import Controls from './components/Controls';
 import { CompletePoint, Point } from './types';
 
@@ -15,6 +16,8 @@ function App() {
 		{ id: crypto.randomUUID(), x: 500, y: 400 },
 		{ id: crypto.randomUUID(), x: 650, y: 140 },
 	]);
+	const [pointColor, setPointColor] = useState<string>('red');
+	const [lineColor, setLineColor] = useState<string>('#888');
 
 	// creates a new point with same coordinates as previous latest
 	const addPoint = () => {
@@ -59,6 +62,8 @@ function App() {
 			<div style={{ position: 'relative' }}>
 				<BackgroundCanvas />
 				<Chart
+					pointColor={pointColor}
+					lineColor={lineColor}
 					points={
 						// pass only points with both coordinates existing
 						points.filter(
@@ -67,6 +72,12 @@ function App() {
 					}
 				/>
 			</div>
+			<ColorPicker
+				pointColor={pointColor}
+				setPointColor={setPointColor}
+				lineColor={lineColor}
+				setLineColor={setLineColor}
+			/>
 			<Controls
 				points={points}
 				addPoint={addPoint}
