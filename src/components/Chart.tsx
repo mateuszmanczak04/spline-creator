@@ -79,9 +79,6 @@ const Chart: FC<ChartProps> = ({ points }) => {
 
 			prevEndDerivative = 3 * a1 * R ** 2 + 2 * b1 * R + c1;
 
-			console.log(a1, b1, c1);
-			console.log('ped', prevEndDerivative, R);
-
 			// first curve is an exception where we have to draw the first part
 			if (i === 0) {
 				drawSplineSegment(ctx, height, L, C, a0, b0, c0, d0, 'black');

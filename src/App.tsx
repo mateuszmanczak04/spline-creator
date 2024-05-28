@@ -51,7 +51,6 @@ function App() {
 				return point;
 			}),
 		);
-		console.log(points);
 	};
 
 	return (
