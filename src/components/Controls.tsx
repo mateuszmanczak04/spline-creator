@@ -32,7 +32,7 @@ const Controls: FC<ControlsProps> = ({
 				alignItems: 'start',
 				padding: '1rem',
 			}}>
-			<h2>Współrzędne punktów</h2>
+			<h2>Points:</h2>
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 				{points.map(point => (
 					<div
