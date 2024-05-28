@@ -1,12 +1,12 @@
 'use client';
 
-import { FC, useCallback, useEffect, useRef } from 'react';
+import { FC, memo, useCallback, useEffect, useRef } from 'react';
 import { CANVAS_HEIGHT } from '../utils/consts';
 import drawChartBackground from '../utils/drawChartBackground';
 
 interface BackgroundCanvasProps {}
 
-const BackgroundCanvas: FC<BackgroundCanvasProps> = () => {
+const BackgroundCanvas: FC<BackgroundCanvasProps> = memo(() => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
@@ -53,6 +53,6 @@ const BackgroundCanvas: FC<BackgroundCanvasProps> = () => {
 				zIndex: -1,
 			}}></canvas>
 	);
-};
+});
 
 export default BackgroundCanvas;
