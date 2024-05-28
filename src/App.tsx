@@ -7,12 +7,12 @@ import { Point } from './types';
 function App() {
 	const [points, setPoints] = useState<Point[]>([
 		{ id: crypto.randomUUID(), x: 10, y: 50 },
-		{ id: crypto.randomUUID(), x: 40, y: 20 },
+		{ id: crypto.randomUUID(), x: 40, y: 40 },
 		{ id: crypto.randomUUID(), x: 100, y: 125 },
-		{ id: crypto.randomUUID(), x: 200, y: 20 },
-		{ id: crypto.randomUUID(), x: 270, y: 220 },
-		{ id: crypto.randomUUID(), x: 360, y: 100 },
-		{ id: crypto.randomUUID(), x: 400, y: 140 },
+		{ id: crypto.randomUUID(), x: 200, y: 110 },
+		{ id: crypto.randomUUID(), x: 400, y: 220 },
+		{ id: crypto.randomUUID(), x: 500, y: 400 },
+		{ id: crypto.randomUUID(), x: 650, y: 140 },
 	]);
 
 	// creates a new point with same coordinates as previous latest
