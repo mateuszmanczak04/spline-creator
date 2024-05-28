@@ -3,7 +3,6 @@
 import { Matrix, solve } from 'ml-matrix';
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { CompletePoint } from '../types';
-import { CANVAS_HEIGHT } from '../utils/consts';
 import drawChartBackground from '../utils/drawChartBackground';
 import drawPoint from '../utils/drawPoint';
 import drawSplineSegment from '../utils/drawSplineSegment';
@@ -12,9 +11,10 @@ interface ChartProps {
 	points: CompletePoint[];
 	pointColor: string;
 	lineColor: string;
+	height: number;
 }
 
-const Chart: FC<ChartProps> = ({ points, pointColor, lineColor }) => {
+const Chart: FC<ChartProps> = ({ points, pointColor, lineColor, height }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
@@ -111,13 +111,17 @@ const Chart: FC<ChartProps> = ({ points, pointColor, lineColor }) => {
 		};
 	}, [repaint]);
 
+	useEffect(() => {
+		repaint();
+	}, [height, repaint]);
+
 	return (
 		<>
 			<canvas
 				id='curve-canvas'
 				ref={canvasRef}
 				width={window.innerWidth - 48}
-				height={CANVAS_HEIGHT - 48}
+				height={height - 48}
 				style={{
 					marginLeft: '48px',
 					marginBottom: '48px',

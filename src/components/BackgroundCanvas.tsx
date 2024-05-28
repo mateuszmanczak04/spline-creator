@@ -1,12 +1,13 @@
 'use client';
 
 import { FC, memo, useCallback, useEffect, useRef } from 'react';
-import { CANVAS_HEIGHT } from '../utils/consts';
 import drawChartBackground from '../utils/drawChartBackground';
 
-interface BackgroundCanvasProps {}
+interface BackgroundCanvasProps {
+	height: number;
+}
 
-const BackgroundCanvas: FC<BackgroundCanvasProps> = memo(() => {
+const BackgroundCanvas: FC<BackgroundCanvasProps> = memo(({ height }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const repaint = useCallback(() => {
@@ -41,12 +42,16 @@ const BackgroundCanvas: FC<BackgroundCanvasProps> = memo(() => {
 		};
 	}, [repaint]);
 
+	useEffect(() => {
+		repaint();
+	}, [height, repaint]);
+
 	return (
 		<canvas
 			id='background-canvas'
 			ref={canvasRef}
 			width={window.innerWidth}
-			height={CANVAS_HEIGHT}
+			height={height}
 			style={{
 				position: 'absolute',
 				top: 0,

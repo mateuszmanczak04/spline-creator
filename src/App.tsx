@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import BackgroundCanvas from './components/BackgroundCanvas';
+import CanvasHeightController from './components/CanvasHeightController';
 import Chart from './components/Chart';
 import ColorPicker from './components/ColorPicker';
 import Controls from './components/Controls';
@@ -19,6 +20,9 @@ function App() {
 	]);
 	const [pointColor, setPointColor] = useState<string>('red');
 	const [lineColor, setLineColor] = useState<string>('#888');
+	const [canvasHeight, setCanvasHeight] = useState<number>(
+		Math.floor(window.innerHeight / 2),
+	);
 
 	// creates a new point with same coordinates as previous latest
 	const addPoint = () => {
@@ -61,8 +65,9 @@ function App() {
 	return (
 		<div>
 			<div style={{ position: 'relative' }}>
-				<BackgroundCanvas />
+				<BackgroundCanvas height={canvasHeight} />
 				<Chart
+					height={canvasHeight}
 					pointColor={pointColor}
 					lineColor={lineColor}
 					points={
@@ -73,6 +78,10 @@ function App() {
 					}
 				/>
 			</div>
+			<CanvasHeightController
+				height={canvasHeight}
+				setHeight={setCanvasHeight}
+			/>
 			<DownloadButton />
 			<ColorPicker
 				pointColor={pointColor}
