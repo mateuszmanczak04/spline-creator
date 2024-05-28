@@ -144,6 +144,19 @@ const Chart: FC<ChartProps> = ({ points }) => {
 
 	useEffect(() => {
 		repaint();
+
+		const handleWindowResize = (event: Event) => {
+			const target = event.target as Window;
+			if (!canvasRef.current) return;
+			canvasRef.current.width = target.innerWidth - 32;
+			repaint();
+		};
+
+		window.addEventListener('resize', handleWindowResize);
+
+		return () => {
+			window.removeEventListener('resize', handleWindowResize);
+		};
 	}, [repaint]);
 
 	return (
