@@ -43,6 +43,7 @@ const BackgroundCanvas: FC<BackgroundCanvasProps> = memo(() => {
 
 	return (
 		<canvas
+			id='background-canvas'
 			ref={canvasRef}
 			width={window.innerWidth}
 			height={CANVAS_HEIGHT}

@@ -4,6 +4,7 @@ import BackgroundCanvas from './components/BackgroundCanvas';
 import Chart from './components/Chart';
 import ColorPicker from './components/ColorPicker';
 import Controls from './components/Controls';
+import DownloadButton from './components/DownloadButton';
 import { CompletePoint, Point } from './types';
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
 					}
 				/>
 			</div>
+			<DownloadButton />
 			<ColorPicker
 				pointColor={pointColor}
 				setPointColor={setPointColor}

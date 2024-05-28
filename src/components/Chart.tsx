@@ -114,6 +114,7 @@ const Chart: FC<ChartProps> = ({ points, pointColor, lineColor }) => {
 	return (
 		<>
 			<canvas
+				id='curve-canvas'
 				ref={canvasRef}
 				width={window.innerWidth - 48}
 				height={CANVAS_HEIGHT - 48}
