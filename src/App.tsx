@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import BackgroundCanvas from './components/BackgroundCanvas';
 import Chart from './components/Chart';
 import Controls from './components/Controls';
 import { CompletePoint, Point } from './types';
@@ -55,14 +56,17 @@ function App() {
 
 	return (
 		<div>
-			<Chart
-				points={
-					// pass only points with both coordinates existing
-					points.filter(
-						point => point.x !== null && point.y !== null,
-					) as CompletePoint[]
-				}
-			/>
+			<div style={{ position: 'relative' }}>
+				<BackgroundCanvas />
+				<Chart
+					points={
+						// pass only points with both coordinates existing
+						points.filter(
+							point => point.x !== null && point.y !== null,
+						) as CompletePoint[]
+					}
+				/>
+			</div>
 			<Controls
 				points={points}
 				addPoint={addPoint}

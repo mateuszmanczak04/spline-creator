@@ -3,6 +3,8 @@
 import { Matrix, solve } from 'ml-matrix';
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { CompletePoint } from '../types';
+import { CANVAS_HEIGHT } from '../utils/consts';
+import drawChartBackground from '../utils/drawChartBackground';
 import drawPoint from '../utils/drawPoint';
 import drawSplineSegment from '../utils/drawSplineSegment';
 
@@ -28,6 +30,7 @@ const Chart: FC<ChartProps> = ({ points }) => {
 			return;
 		}
 
+		drawChartBackground(ctx, canvas.width, canvas.height);
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.fillStyle = '#F53208';
@@ -111,12 +114,11 @@ const Chart: FC<ChartProps> = ({ points }) => {
 		<>
 			<canvas
 				ref={canvasRef}
-				width={window.innerWidth - 32}
-				height={500}
+				width={window.innerWidth - 48}
+				height={CANVAS_HEIGHT - 48}
 				style={{
-					background: '#efefef',
-					padding: '1rem',
-					borderBottom: '2px solid #cdcdcd',
+					marginLeft: '48px',
+					marginBottom: '48px',
 				}}></canvas>
 		</>
 	);
