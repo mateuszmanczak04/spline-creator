@@ -3,9 +3,8 @@
 import { Matrix, solve } from 'ml-matrix';
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { Point } from '../types';
-import calculatePolynomialOf3Degree from '../utils/calculatePolynomialOf3Degree';
 import drawPoint from '../utils/drawPoint';
-import getRandomDarkColor from '../utils/getRandomDarkColor';
+import drawSplineSegment from '../utils/drawSplineSegment';
 
 interface ChartProps {
 	points: Point[];
@@ -35,8 +34,7 @@ const Chart: FC<ChartProps> = ({ points }) => {
 		ctx.strokeStyle = '#21130d';
 		const height = canvas.height;
 
-		// let prevEndDerivative =
-		// 	(points[1].y - points[0].y) / (points[1].x - points[0].x);
+		// we need this to maintain C^1 class of entire spline curve
 		let prevEndDerivative = 0;
 
 		for (let i = 0; i < points.length - 2; i++) {
@@ -54,8 +52,6 @@ const Chart: FC<ChartProps> = ({ points }) => {
 				[6 * L, 2, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 6 * R, 2, 0, 0],
 				[3 * C ** 2, 2 * C, 1, 0, 0, 0, 0, 0], // S0'(C)
-				// [0, 0, 0, 0, 3 * C ** 2, 2 * C, 1, 0], // S1'(C)
-				// [0, 0, 0, 0, 6 * C, 2, 0, 0], // S1''(C)
 			]);
 
 			const B = new Matrix([
@@ -67,9 +63,7 @@ const Chart: FC<ChartProps> = ({ points }) => {
 				[0],
 				[0],
 				[0],
-				// [prevEndDerivative],
 				[prevEndDerivative],
-				// [prevSecondEndDerivative],
 			]);
 
 			const result = solve(A, B).to2DArray();
@@ -88,34 +82,13 @@ const Chart: FC<ChartProps> = ({ points }) => {
 			console.log(a1, b1, c1);
 			console.log('ped', prevEndDerivative, R);
 
-			const drawSplineSegment = (
-				startX: number,
-				endX: number,
-				a: number,
-				b: number,
-				c: number,
-				d: number,
-				color: string,
-			) => {
-				ctx.beginPath();
-				ctx.moveTo(
-					startX,
-					height - calculatePolynomialOf3Degree({ a, b, c, d, x: startX }),
-				);
-				for (let x = startX; x <= endX; x += 1) {
-					const y = calculatePolynomialOf3Degree({ a, b, c, d, x });
-					ctx.lineTo(x, height - y);
-				}
-				ctx.strokeStyle = color;
-				ctx.stroke();
-			};
-
+			// first curve is an exception where we have to draw the first part
 			if (i === 0) {
-				drawSplineSegment(L, C, a0, b0, c0, d0, 'black');
-				drawSplineSegment(C, R, a1, b1, c1, d1, 'black');
-			} else {
-				drawSplineSegment(C, R, a1, b1, c1, d1, 'black');
+				drawSplineSegment(ctx, height, L, C, a0, b0, c0, d0, 'black');
 			}
+
+			// every next curve needs just the second part of it's visualisation
+			drawSplineSegment(ctx, height, C, R, a1, b1, c1, d1, 'black');
 		}
 
 		points.forEach(p => drawPoint(ctx, height, p.x, p.y));
