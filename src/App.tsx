@@ -63,6 +63,7 @@ function App() {
 
 	return (
 		<div>
+			<h1 style={{ margin: '0.25rem 1rem' }}>Cubic spline interpolation</h1>
 			<div style={{ position: 'relative' }}>
 				<BackgroundCanvas height={canvasHeight} />
 				<Chart
