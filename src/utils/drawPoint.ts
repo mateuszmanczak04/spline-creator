@@ -15,7 +15,7 @@ const drawPoint = (
 	ctx.beginPath();
 	ctx.moveTo(x, canvasHeight - y);
 	ctx.fillStyle = color;
-	ctx.arc(x, canvasHeight - y, 6, 0, Math.PI * 2);
+	ctx.arc(x, canvasHeight - y, 5, 0, Math.PI * 2);
 	ctx.fill();
 	ctx.fillStyle = 'black';
 	const labelSize = ctx.measureText(`${x},${y}`);

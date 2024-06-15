@@ -1,11 +1,11 @@
 'use client';
 
-import { Matrix, solve } from 'ml-matrix';
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { CompletePoint } from '../types';
 import drawChartBackground from '../utils/drawChartBackground';
 import drawPoint from '../utils/drawPoint';
-import drawSplineSegment from '../utils/drawSplineSegment';
+import drawSpline from '../utils/drawSpline';
+import getCubicSplineCoefficients from '../utils/getCubicSplineCoefficients';
 
 interface ChartProps {
 	points: CompletePoint[];
@@ -32,68 +32,23 @@ const Chart: FC<ChartProps> = ({ points, pointColor, lineColor, height }) => {
 			return;
 		}
 
+		// Setup background
 		drawChartBackground(ctx, canvas.width, canvas.height);
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = lineColor;
 		const height = canvas.height;
 
-		// we need this to maintain C^1 class of entire spline curve
-		let prevEndDerivative = 0;
 		try {
-			for (let i = 0; i < points.length - 2; i++) {
-				const L = points[i].x;
-				const C = points[i + 1].x;
-				const R = points[i + 2].x;
+			const { a, b, c, d } = getCubicSplineCoefficients(points);
 
-				const A = new Matrix([
-					[L ** 3, L ** 2, L, 1, 0, 0, 0, 0],
-					[C ** 3, C ** 2, C, 1, 0, 0, 0, 0],
-					[0, 0, 0, 0, C ** 3, C ** 2, C, 1],
-					[0, 0, 0, 0, R ** 3, R ** 2, R, 1],
-					[3 * C ** 2, 2 * C, 1, 0, -3 * C ** 2, -2 * C, -1, 0],
-					[6 * C, 2, 0, 0, -6 * C, -2, 0, 0],
-					[6 * L, 2, 0, 0, 0, 0, 0, 0],
-					[0, 0, 0, 0, 6 * R, 2, 0, 0],
-					[3 * C ** 2, 2 * C, 1, 0, 0, 0, 0, 0], // S0'(C)
-				]);
+			// Draw lines connecting points
+			drawSpline(ctx, height, points, a, b, c, d, lineColor);
 
-				const B = new Matrix([
-					[points[i].y],
-					[points[i + 1].y],
-					[points[i + 1].y],
-					[points[i + 2].y],
-					[0],
-					[0],
-					[0],
-					[0],
-					[prevEndDerivative],
-				]);
-
-				const result = solve(A, B).to2DArray();
-
-				const a0 = result[0][0];
-				const b0 = result[1][0];
-				const c0 = result[2][0];
-				const d0 = result[3][0];
-				const a1 = result[4][0];
-				const b1 = result[5][0];
-				const c1 = result[6][0];
-				const d1 = result[7][0];
-
-				prevEndDerivative = 3 * a1 * R ** 2 + 2 * b1 * R + c1;
-
-				// first curve is an exception where we have to draw the first part
-				if (i === 0) {
-					drawSplineSegment(ctx, height, L, C, a0, b0, c0, d0, lineColor);
-				}
-
-				// every next curve needs just the second part of it's visualisation
-				drawSplineSegment(ctx, height, C, R, a1, b1, c1, d1, lineColor);
-			}
-
+			// Draw points as dots
 			points.forEach(p => drawPoint(ctx, height, p.x, p.y, pointColor));
 		} catch (err) {
+			// Code responsible for displaying errors inside canvas
 			ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
 			ctx.font = '64px sans-serif';
 			const textSize = ctx.measureText('Invalid coordinates');
